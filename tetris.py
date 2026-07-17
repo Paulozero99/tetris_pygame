@@ -30,10 +30,10 @@ while rodando:
             rodando = False
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
-                nova_coluna, nova_linha = bloco
+                nova_coluna, nova_linha = bloco[0]
 
                 nova_posicao_bloco = (nova_coluna, limite_linhas - 1)
-                bloco = nova_posicao_bloco
+                bloco[0] = nova_posicao_bloco
 
 
     teclas = pygame.key.get_pressed()
@@ -41,41 +41,77 @@ while rodando:
     if tempo_movimento >= intervalo_movimento:
         tempo_movimento -= intervalo_movimento
         
-        nova_coluna, nova_linha = bloco
+        nova_coluna, nova_linha = bloco[0]
 
         if teclas[pygame.K_a] and nova_coluna > 0:
-            nova_coluna -= 1
-        if teclas[pygame.K_d] and nova_coluna < limite_culunas - 1:
-            nova_coluna += 1
-        if teclas[pygame.K_s] and nova_linha < limite_linhas - 1:
-            nova_linha += 1
+            #nova_coluna -= 1
 
-        nova_posicao_bloco = (nova_coluna, nova_linha)
-        bloco = nova_posicao_bloco
+            i = 0
+
+            for posicao_direita in bloco:
+                if posicao_direita[0] < limite_culunas - 1:
+                    bloco[i] = (posicao_direita[0] + 1, posicao_direita[1])
+                
+                i += 1
+
+        if teclas[pygame.K_d]:
+            # nova_coluna += 1
+            i = 0
+
+            for posicao_direita in bloco:
+                if posicao_direita[0] < limite_culunas - 1:
+                    bloco[i] = (posicao_direita[0] + 1, posicao_direita[1])
+                
+                i += 1
+
+        if teclas[pygame.K_s] and nova_linha < limite_linhas - 1:
+            # nova_linha += 1
+            i = 0
+
+            for posicao_queda in bloco:
+                if posicao_queda[1] < limite_linhas - 1:
+                    bloco[i] = (posicao_queda[0], posicao_queda[1] + 1)
+                
+                i += 1
+
+        # nova_posicao_bloco = (nova_coluna, nova_linha)
+        # bloco[0] = nova_posicao_bloco
 
     if tempo_queda >= intervalo_queda:
         tempo_queda -= intervalo_queda
 
-        nova_coluna, nova_linha = bloco
+        #nova_coluna, nova_linha = bloco[0]
 
-        if nova_linha < limite_linhas - 1:
-            nova_linha += 1
+        #if parte < limite_linhas - 1:
+            # nova_linha += 1
 
-        nova_posicao_bloco = (nova_coluna, nova_linha)
-        bloco = nova_posicao_bloco
+        # nova_posicao_bloco = (nova_coluna, nova_linha)
+        # bloco[0] = nova_posicao_bloco
+        i = 0
 
-    coluna_bloco, linha_bloco = bloco
+        for posicao_queda in bloco:
+            if posicao_queda[1] < limite_linhas - 1:
+                bloco[i] = (posicao_queda[0], posicao_queda[1] + 1)
+            
+            i += 1
+
+    # coluna_bloco, linha_bloco = bloco[0]
 
     #tela_logica.fill((100, 0, 0))
     tela_logica.blit(fundo, (0, 0))
     
-    pygame.draw.rect(
-        tela_logica,
-        (255, 0, 0),
-        (
-            coluna_bloco * TAMANHO,linha_bloco * TAMANHO, TAMANHO, TAMANHO
+
+    for x, y in bloco:
+        pygame.draw.rect(
+            tela_logica,
+            (255, 0, 0),
+            (
+                x * TAMANHO,
+                y * TAMANHO, 
+                TAMANHO, 
+                TAMANHO
+            )
         )
-    )
 
     tela_redimensionada = pygame.transform.scale(tela_logica, (LARGURA_JANELA, ALTURA_JANELA))
     tela_janela.blit(tela_redimensionada, (0, 0))
