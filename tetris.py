@@ -30,10 +30,16 @@ while rodando:
             rodando = False
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
-                nova_coluna, nova_linha = bloco[0]
+                pode_hard_drop = True
 
-                nova_posicao_bloco = (nova_coluna, limite_linhas - 1)
-                bloco[0] = nova_posicao_bloco
+                for x, y in bloco:
+                    if y >= limite_linhas:
+                        pode_hard_drop = False
+                    
+                if pode_hard_drop:
+                    for i, (x, y) in enumerate(bloco):
+                        bloco[i] = (x, limite_linhas - 1)
+
 
 
     teclas = pygame.key.get_pressed()
@@ -43,57 +49,57 @@ while rodando:
         
         nova_coluna, nova_linha = bloco[0]
 
-        if teclas[pygame.K_a] and nova_coluna > 0:
+        if teclas[pygame.K_a]:
             #nova_coluna -= 1
-
-            i = 0
-
-            for posicao_direita in bloco:
-                if posicao_direita[0] < limite_culunas - 1:
-                    bloco[i] = (posicao_direita[0] + 1, posicao_direita[1])
-                
-                i += 1
+            pode_esquerda = True
+            
+            for x, y in bloco:
+                if x - 1 < 0:
+                    pode_esquerda = False
+                    break
+            
+            if pode_esquerda:
+                for i, (x, y) in enumerate(bloco):
+                    bloco[i] = (x - 1, y)
 
         if teclas[pygame.K_d]:
             # nova_coluna += 1
-            i = 0
+            pode_direta = True
+            
+            for x, y in bloco:
+                if x + 1 >= limite_culunas:
+                    pode_direta = False
+                    break
 
-            for posicao_direita in bloco:
-                if posicao_direita[0] < limite_culunas - 1:
-                    bloco[i] = (posicao_direita[0] + 1, posicao_direita[1])
-                
-                i += 1
+            if pode_direta:
+                for i, (x, y) in enumerate(bloco):
+                    bloco[i] = (x + 1, y)
 
         if teclas[pygame.K_s] and nova_linha < limite_linhas - 1:
-            # nova_linha += 1
-            i = 0
+            pode_descer = True
+            
+            for x, y in bloco:
+                if y >= limite_linhas - 1:
+                    pode_descer = False
+                    break
 
-            for posicao_queda in bloco:
-                if posicao_queda[1] < limite_linhas - 1:
-                    bloco[i] = (posicao_queda[0], posicao_queda[1] + 1)
-                
-                i += 1
-
-        # nova_posicao_bloco = (nova_coluna, nova_linha)
-        # bloco[0] = nova_posicao_bloco
+            if pode_descer:
+                for i, (x, y) in enumerate(bloco):
+                    bloco[i] = (x, y + 1)
 
     if tempo_queda >= intervalo_queda:
         tempo_queda -= intervalo_queda
 
-        #nova_coluna, nova_linha = bloco[0]
+        pode_queda = True
 
-        #if parte < limite_linhas - 1:
-            # nova_linha += 1
+        for x, y in bloco:
+            if y >= limite_linhas - 1:
+                pode_queda = False
+                break
 
-        # nova_posicao_bloco = (nova_coluna, nova_linha)
-        # bloco[0] = nova_posicao_bloco
-        i = 0
-
-        for posicao_queda in bloco:
-            if posicao_queda[1] < limite_linhas - 1:
-                bloco[i] = (posicao_queda[0], posicao_queda[1] + 1)
-            
-            i += 1
+        if pode_queda:
+            for i, (x, y) in enumerate(bloco):
+                bloco[i] = (x, y + 1)
 
     # coluna_bloco, linha_bloco = bloco[0]
 
