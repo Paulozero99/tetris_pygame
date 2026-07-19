@@ -17,6 +17,26 @@ intervalo_movimento = 300
 fundo = pygame.Surface((LARGURA, ALTURA))
 desenhar_fundo(fundo, limite_culunas, limite_linhas, TAMANHO)
 
+def pode_descer(bloco):
+    for x, y in bloco:
+        if y >= limite_linhas - 1:
+            return False
+    return True
+
+def descer(bloco):
+    for i, (x, y) in enumerate(bloco):
+        bloco[i] = (x, y + 1)
+
+def pode_mover_lado(bloco, direcao):
+    for x, y in bloco:
+        if (x <= 0 and direcao < 0) or (x >= limite_culunas - 1 and direcao > 0) or y >= limite_linhas - 1:
+            return False
+    return True
+
+def mover_lado(bloco, direcao):
+    for i, (x, y) in enumerate(bloco):
+        bloco[i] = (x + direcao, y)
+
 rodando = True
 
 while rodando:
@@ -30,76 +50,28 @@ while rodando:
             rodando = False
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
-                pode_hard_drop = True
-
-                for x, y in bloco:
-                    if y >= limite_linhas:
-                        pode_hard_drop = False
-                    
-                if pode_hard_drop:
-                    for i, (x, y) in enumerate(bloco):
-                        bloco[i] = (x, limite_linhas - 1)
-
-
+                while pode_descer(bloco):
+                    descer(bloco)
 
     teclas = pygame.key.get_pressed()
 
     if tempo_movimento >= intervalo_movimento:
         tempo_movimento -= intervalo_movimento
-        
-        nova_coluna, nova_linha = bloco[0]
 
-        if teclas[pygame.K_a]:
-            #nova_coluna -= 1
-            pode_esquerda = True
-            
-            for x, y in bloco:
-                if x - 1 < 0:
-                    pode_esquerda = False
-                    break
-            
-            if pode_esquerda:
-                for i, (x, y) in enumerate(bloco):
-                    bloco[i] = (x - 1, y)
+        direcao = teclas[pygame.K_d] - teclas[pygame.K_a]
 
-        if teclas[pygame.K_d]:
-            # nova_coluna += 1
-            pode_direta = True
-            
-            for x, y in bloco:
-                if x + 1 >= limite_culunas:
-                    pode_direta = False
-                    break
+        if pode_mover_lado(bloco,direcao) and direcao != 0:
+            mover_lado(bloco, direcao)
 
-            if pode_direta:
-                for i, (x, y) in enumerate(bloco):
-                    bloco[i] = (x + 1, y)
-
-        if teclas[pygame.K_s] and nova_linha < limite_linhas - 1:
-            pode_descer = True
-            
-            for x, y in bloco:
-                if y >= limite_linhas - 1:
-                    pode_descer = False
-                    break
-
-            if pode_descer:
-                for i, (x, y) in enumerate(bloco):
-                    bloco[i] = (x, y + 1)
+        if teclas[pygame.K_s]:
+            if pode_descer(bloco):
+                descer(bloco)
 
     if tempo_queda >= intervalo_queda:
         tempo_queda -= intervalo_queda
 
-        pode_queda = True
-
-        for x, y in bloco:
-            if y >= limite_linhas - 1:
-                pode_queda = False
-                break
-
-        if pode_queda:
-            for i, (x, y) in enumerate(bloco):
-                bloco[i] = (x, y + 1)
+        if pode_descer(bloco):
+            descer(bloco)
 
     # coluna_bloco, linha_bloco = bloco[0]
 
