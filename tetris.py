@@ -15,12 +15,27 @@ tempo_movimento = 0
 intervalo_movimento = 300
 
 fundo = pygame.Surface((LARGURA, ALTURA))
-desenhar_fundo(fundo, limite_culunas, limite_linhas, TAMANHO)
+desenhar_fundo(fundo, limite_colunas, limite_linhas, TAMANHO)
+
+def criar_novo_bloco():
+    formatos_blocos = [
+        [(0, 1), (1, 0), (1, 1), (1, 2)],
+        [(0, 0), (1, 0), (1, 0), (1, 1)],
+        [(0, 0), (0, 1), (0, 2), (1, 2)],
+    ]
+
+    nova_peca = formatos_blocos[random.randrange(len(formatos_blocos))]
+
+    return nova_peca
 
 def pode_descer(bloco):
     for x, y in bloco:
         if y >= limite_linhas - 1:
             return False
+        
+        if tabuleiro[y + 1][x] != 0:
+            return False
+        
     return True
 
 def descer(bloco):
@@ -29,7 +44,7 @@ def descer(bloco):
 
 def pode_mover_lado(bloco, direcao):
     for x, y in bloco:
-        if (x <= 0 and direcao < 0) or (x >= limite_culunas - 1 and direcao > 0) or y >= limite_linhas - 1:
+        if (x <= 0 and direcao < 0) or (x >= limite_colunas - 1 and direcao > 0) or y >= limite_linhas - 1 or tabuleiro[y][x + direcao] != 0:
             return False
     return True
 
@@ -44,6 +59,12 @@ while rodando:
 
     tempo_queda += delta
     tempo_movimento += delta
+
+    if not pode_descer(bloco):
+        for x, y in bloco:
+            tabuleiro[y][x] = 1
+
+        bloco = criar_novo_bloco()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -73,11 +94,22 @@ while rodando:
         if pode_descer(bloco):
             descer(bloco)
 
-    # coluna_bloco, linha_bloco = bloco[0]
-
-    #tela_logica.fill((100, 0, 0))
     tela_logica.blit(fundo, (0, 0))
     
+
+    for y, linha in enumerate(tabuleiro):
+        for x, valor in enumerate(linha):
+            if valor != 0:
+                pygame.draw.rect(
+                    tela_logica,
+                    (255, 0, 0),
+                    (
+                        x * TAMANHO,
+                        y * TAMANHO, 
+                        TAMANHO, 
+                        TAMANHO
+                    )
+                )
 
     for x, y in bloco:
         pygame.draw.rect(
