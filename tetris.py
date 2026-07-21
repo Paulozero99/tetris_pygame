@@ -9,19 +9,28 @@ tela_janela = pygame.display.set_mode((LARGURA_JANELA, ALTURA_JANELA))
 clock = pygame.time.Clock()
 
 tempo_queda = 0
-intervalo_queda = 800
+intervalo_queda = 500
 
 tempo_movimento = 0
-intervalo_movimento = 300
+intervalo_movimento = 150
 
 fundo = pygame.Surface((LARGURA, ALTURA))
 desenhar_fundo(fundo, limite_colunas, limite_linhas, TAMANHO)
 
 def criar_novo_bloco():
     formatos_blocos = [
-        [(0, 1), (1, 0), (1, 1), (1, 2)],
-        [(0, 0), (1, 0), (1, 0), (1, 1)],
-        [(0, 0), (0, 1), (0, 2), (1, 2)],
+        {
+            "forma": [(1, 0), (2, 0), (3, 1), (2, 1)],
+            "cor": (255, 0, 0)
+        },
+        {
+            "forma": [(0, 0), (1, 0), (0, 1), (1, 1)],
+            "cor": (0, 255, 0)
+        },
+        {
+            "forma": [(0, 0), (0, 1), (0, 2), (1, 2)],
+            "cor": (0, 0, 255)
+        }
     ]
 
     nova_peca = formatos_blocos[random.randrange(len(formatos_blocos))]
@@ -43,9 +52,16 @@ def descer(bloco):
         bloco[i] = (x, y + 1)
 
 def pode_mover_lado(bloco, direcao):
+    nova_posicao_x = x + direcao
+
     for x, y in bloco:
-        if (x <= 0 and direcao < 0) or (x >= limite_colunas - 1 and direcao > 0) or y >= limite_linhas - 1 or tabuleiro[y][x + direcao] != 0:
+        if nova_posicao_x < 0 or nova_posicao_x >= limite_colunas - 1:
             return False
+        if y >= limite_linhas - 1:
+            return False
+        if tabuleiro[y][nova_posicao_x] != 0:
+            return False
+        
     return True
 
 def mover_lado(bloco, direcao):
@@ -60,9 +76,17 @@ while rodando:
     tempo_queda += delta
     tempo_movimento += delta
 
-    if not pode_descer(bloco):
-        for x, y in bloco:
-            tabuleiro[y][x] = 1
+    if jogo_comecando:
+        bloco = criar_novo_bloco()
+        
+        tabuleiro.clear()
+        tabuleiro = [[0] * 10 for _ in range(LINHAS)]
+
+        jogo_comecando = False
+
+    if not pode_descer(bloco["forma"]):
+        for x, y in bloco["forma"]:
+            tabuleiro[y][x] = bloco["cor"]
 
         bloco = criar_novo_bloco()
 
@@ -71,8 +95,10 @@ while rodando:
             rodando = False
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
-                while pode_descer(bloco):
-                    descer(bloco)
+                while pode_descer(bloco["forma"]):
+                    descer(bloco["forma"])
+            elif event.key == pygame.K_r:
+                jogo_comecando = True
 
     teclas = pygame.key.get_pressed()
 
@@ -81,18 +107,18 @@ while rodando:
 
         direcao = teclas[pygame.K_d] - teclas[pygame.K_a]
 
-        if pode_mover_lado(bloco,direcao) and direcao != 0:
-            mover_lado(bloco, direcao)
+        if pode_mover_lado(bloco["forma"],direcao) and direcao != 0:
+            mover_lado(bloco["forma"], direcao)
 
         if teclas[pygame.K_s]:
-            if pode_descer(bloco):
-                descer(bloco)
+            if pode_descer(bloco["forma"]):
+                descer(bloco["forma"])
 
     if tempo_queda >= intervalo_queda:
         tempo_queda -= intervalo_queda
 
-        if pode_descer(bloco):
-            descer(bloco)
+        if pode_descer(bloco["forma"]):
+            descer(bloco["forma"])
 
     tela_logica.blit(fundo, (0, 0))
     
@@ -102,7 +128,7 @@ while rodando:
             if valor != 0:
                 pygame.draw.rect(
                     tela_logica,
-                    (255, 0, 0),
+                    (valor),
                     (
                         x * TAMANHO,
                         y * TAMANHO, 
@@ -111,10 +137,10 @@ while rodando:
                     )
                 )
 
-    for x, y in bloco:
+    for x, y in bloco["forma"]:
         pygame.draw.rect(
             tela_logica,
-            (255, 0, 0),
+            (bloco["cor"]),
             (
                 x * TAMANHO,
                 y * TAMANHO, 
