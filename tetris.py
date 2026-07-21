@@ -52,12 +52,10 @@ def descer(bloco):
         bloco[i] = (x, y + 1)
 
 def pode_mover_lado(bloco, direcao):
-    nova_posicao_x = x + direcao
-
     for x, y in bloco:
-        if nova_posicao_x < 0 or nova_posicao_x >= limite_colunas - 1:
-            return False
-        if y >= limite_linhas - 1:
+        nova_posicao_x = x + direcao
+
+        if nova_posicao_x < 0 or nova_posicao_x > limite_colunas - 1:
             return False
         if tabuleiro[y][nova_posicao_x] != 0:
             return False
