@@ -30,6 +30,10 @@ def criar_novo_bloco():
         {
             "forma": [(0, 0), (0, 1), (0, 2), (1, 2)],
             "cor": (0, 0, 255)
+        },
+        {
+            "forma": [(0, 0), (0, 1), (0, 2), (0, 3)],
+            "cor": (0, 255, 255)
         }
     ]
 
@@ -66,6 +70,13 @@ def mover_lado(bloco, direcao):
     for i, (x, y) in enumerate(bloco):
         bloco[i] = (x + direcao, y)
 
+def completou_linha():
+    for y in range(LINHAS - 1, -1, -1):
+        if all(tabuleiro[y]):
+            del tabuleiro[y]
+
+            tabuleiro.insert(0, [0] * limite_colunas)
+
 rodando = True
 
 while rodando:
@@ -76,8 +87,7 @@ while rodando:
 
     if jogo_comecando:
         bloco = criar_novo_bloco()
-        
-        tabuleiro.clear()
+    
         tabuleiro = [[0] * 10 for _ in range(LINHAS)]
 
         jogo_comecando = False
@@ -114,6 +124,8 @@ while rodando:
 
     if tempo_queda >= intervalo_queda:
         tempo_queda -= intervalo_queda
+
+        completou_linha()
 
         if pode_descer(bloco["forma"]):
             descer(bloco["forma"])
