@@ -9,18 +9,11 @@ TAMANHO = 8
 limite_linhas = ALTURA // TAMANHO
 limite_colunas = LARGURA // TAMANHO
 
-bloco = [
-    (4, 0),
-    (5, 0),
-    (6, 1),
-    (5, 1)
-]
+bloco = []
+
+jogo_comecando = True
 
 tabuleiro = []
 
 COLUNAS = 10
 LINHAS = 20
-
-for _ in range(LINHAS):
-    linha = [0] * COLUNAS
-    tabuleiro.append(linha)
